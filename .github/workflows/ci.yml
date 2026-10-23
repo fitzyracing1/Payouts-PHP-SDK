@@ -3,6 +3,8 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   build:
     runs-on: ubuntu-latest
+    env:
+      HAS_SANDBOX_CREDS: ${{ secrets.CLIENT_ID != '' && secrets.CLIENT_SECRET != '' }}
     strategy:
       matrix:
         php: ['7.4', '8.1', '8.3']
@@ -19,7 +21,7 @@ jobs:
       - name: Verify PHPUnit loads and discovers tests
         run: vendor/bin/phpunit --version && vendor/bin/phpunit --testsuite unit --list-tests
       - name: Sandbox integration tests (only when credentials are configured)
-        if: ${{ env.CLIENT_ID != '' }}
+        if: ${{ env.HAS_SANDBOX_CREDS == 'true' }}
         env:
           CLIENT_ID: ${{ secrets.CLIENT_ID }}
           CLIENT_SECRET: ${{ secrets.CLIENT_SECRET }}
